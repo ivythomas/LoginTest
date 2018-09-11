@@ -1,0 +1,7 @@
+
+public class Multiply {
+
+	public int FMultiply(int x, int y) {
+		return x*y;
+	}
+}

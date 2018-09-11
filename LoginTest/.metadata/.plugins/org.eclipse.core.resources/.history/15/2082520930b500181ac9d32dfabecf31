@@ -1,0 +1,86 @@
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class LoginTestCase {
+
+	WebDriver driver;
+    private static StringBuilder builder = new StringBuilder();
+    String ErrorDescription;
+	
+    @Before
+	public void setUp() throws Exception {
+		System.setProperty("webdriver.chrome.driver", "C:\\Users\\I322933\\Documents\\Selenium\\chromedriver.exe");		
+		driver = new ChromeDriver();
+		driver.get("https://www.google.com");
+		driver.manage().window().maximize();
+		driver.manage().timeouts().pageLoadTimeout(20, TimeUnit.SECONDS);
+		System.out.println(driver.getTitle());
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		driver.quit();
+	}	
+
+	@Test
+	
+	//This function would test if correct message is displayed for blank username and password or both
+	public void test() {
+		Boolean result;
+		
+		
+		LoginMethods.EnterUsernameAndPassword(driver, "", "thispassword");
+		result = LoginMethods.UsernamePasswordCheck("", "thispassword", driver);
+		assertEquals(result,true);
+		driver.navigate().refresh();
+		
+		
+	}
+	
+	@Rule
+    public TestWatcher watchman = new TestWatcher() {
+
+        @Override
+        protected void failed(Throwable e, Description description) {
+            if (description != null) {
+                builder.append(description);                ;
+            }
+            if (e != null) {
+                builder.append(description.getMethodName()+ " - ");
+                builder.append(ErrorDescription);
+            }
+            builder.append("- FAIL\n");
+        }
+
+        @Override
+        protected void succeeded(Description description) {
+            if (description != null) {
+                builder.append(description);
+            }
+            builder.append(" OK\n");
+        }
+    };
+    
+    @AfterClass
+    public static void afterClass() throws IOException {
+        PrintWriter logFile = new PrintWriter("C:\\Users\\I322933\\logtest.txt", "UTF-8");
+        logFile.write(builder.toString());
+        logFile.close();
+    }
+
+}

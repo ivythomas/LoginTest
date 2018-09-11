@@ -1,0 +1,96 @@
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class LoginTestCase {
+
+	WebDriver driver;
+    private static StringBuilder builder = new StringBuilder();
+    String ErrorDescription;
+	
+    @Before
+	public void setUp() throws Exception {
+		System.setProperty("webdriver.chrome.driver", "C:\\Users\\I322933\\Documents\\Selenium\\chromedriver.exe");		
+		driver = new ChromeDriver();
+		driver.get("https://react-redux-registration-login-example.stackblitz.io/login");
+		driver.manage().window().maximize();
+		driver.manage().timeouts().pageLoadTimeout(2, TimeUnit.MINUTES);
+		System.out.println(driver.getTitle());
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		driver.quit();
+	}	
+
+	@Test
+	
+	//This function would test if correct message is displayed for blank username and password or both
+	public void test() {
+		Boolean result;
+		
+		//Username is blank but password has a value
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterUsernameAndPassword(driver, " ", "thispassword");
+		result = LoginMethods.UsernamePasswordCheck(" ", "thispassword", driver);
+		ErrorDescription = "Username is required message not displayed";
+		assertEquals(true,result);
+		driver.get(driver.getCurrentUrl());
+		
+			
+		//Username has value but password is blank
+		LoginMethods.EnterUsernameAndPassword(driver, "adamjohn", "");
+		result = LoginMethods.UsernamePasswordCheck("", "thispassword", driver);
+		ErrorDescription = "Username is required message not displayed";
+		assertEquals(result,true);
+		driver.navigate().refresh();
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		
+	}
+	
+	@Rule
+    public TestWatcher watchman = new TestWatcher() {
+
+        @Override
+        protected void failed(Throwable e, Description description) {
+            if (description != null) {
+                builder.append(description);                ;
+            }
+            if (e != null) {
+                builder.append(description.getMethodName()+ " - ");
+                builder.append(ErrorDescription);
+            }
+            builder.append("- FAIL\n");
+        }
+
+        @Override
+        protected void succeeded(Description description) {
+            if (description != null) {
+                builder.append(description);
+            }
+            builder.append(" OK\n");
+        }
+    };
+    
+    @AfterClass
+    public static void afterClass() throws IOException {
+        PrintWriter logFile = new PrintWriter("C:\\Users\\I322933\\logtest.txt", "UTF-8");
+        logFile.write(builder.toString());
+        logFile.close();
+    }
+
+}

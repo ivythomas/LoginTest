@@ -1,0 +1,224 @@
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class LoginTestCase {
+
+	WebDriver driver;
+	Boolean result;
+    private static StringBuilder builder = new StringBuilder();
+    String ErrorDescription, url="https://react-redux-registration-login-example.stackblitz.io/login";
+	
+    
+    //The setup function would launch chrome driver and navigate to the login page
+    
+    @Before
+    
+	public void setUp() throws Exception {
+    	
+    	//Please change the chromedriver location according to the local path
+		System.setProperty("webdriver.chrome.driver", "C:\\Users\\Selenium\\chromedriver.exe");		
+		driver = new ChromeDriver();
+		driver.get(url);
+		driver.manage().window().maximize();
+		driver.manage().timeouts().pageLoadTimeout(2, TimeUnit.MINUTES);
+		//System.out.println(driver.getTitle());
+		result = false;
+	}
+
+    
+	//the teardown function closes the opened browser
+    
+	@After
+
+	public void tearDown() throws Exception {
+		driver.quit();
+	}	
+
+	
+	@Test
+	
+	//This function would test if correct message is displayed for invalid username and password
+	public void InvalidLoginTest() {
+				
+		//Username is blank but password has a value
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterUsernameAndPassword(driver, "", "thispassword");
+		result = LoginMethods.UsernamePasswordCheck("", "thispassword", driver);
+		ErrorDescription = "Username is required message not displayed";
+		assertEquals(true,result);		
+		
+			
+		//Username has value but password is blank
+		driver.get(driver.getCurrentUrl());
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterUsernameAndPassword(driver, "adamjohn", "");
+		result = LoginMethods.UsernamePasswordCheck("adamjohn", "", driver);
+		ErrorDescription = "Password is required message not displayed";
+		assertEquals(result,true);
+
+		//Both username and password are blank
+		driver.get(driver.getCurrentUrl());
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterUsernameAndPassword(driver, "", "");
+		result = LoginMethods.UsernamePasswordCheck("", "", driver);
+		ErrorDescription = "Username and Password is required message not displayed";
+		assertEquals(result,true);
+		
+		//Invalid username and password
+		driver.get(driver.getCurrentUrl());
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterUsernameAndPassword(driver, "adamjohn", "thispassword");
+		result = LoginMethods.UsernamePasswordCheck("adamjohn", "thispassword", driver);
+		ErrorDescription = "Username and Password is incorrect message not displayed";
+		assertEquals(result,true);
+		
+	}
+	
+	@Test
+	
+	//This function would test if correct message is displayed for invalid inputs of registration page
+	public void InvalidRegisterTest() {
+
+		driver.get("https://react-redux-registration-login-example.stackblitz.io/login");
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		driver.findElement(By.xpath("//button['Login']/parent::div//a['Register']")).click();
+		
+		//Firstname is blank
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterRegisterDetails(driver, "","John","adamjohn","thispassword");
+		result = LoginMethods.RegisterCheck("","John","adamjohn","thispassword",driver);
+		ErrorDescription = "Firstname is required message not displayed";
+		assertEquals(true,result);		
+		
+			
+		//Lastname is blank
+		driver.get(driver.getCurrentUrl());
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterRegisterDetails(driver, "Adam","","adamjohn","thispassword");
+		result = LoginMethods.RegisterCheck("Adam","","adamjohn","thispassword",driver);
+		ErrorDescription = "Lastname is required message not displayed";
+		assertEquals(true,result);		
+
+		//Username is blank
+		driver.get(driver.getCurrentUrl());
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterRegisterDetails(driver, "Adam","John","","thispassword");
+		result = LoginMethods.RegisterCheck("Adam","John","","thispassword",driver);
+		ErrorDescription = "Username is required message not displayed";
+		assertEquals(true,result);		
+		
+		//Invalid username and password
+		driver.get(driver.getCurrentUrl());
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		LoginMethods.EnterRegisterDetails(driver, "Adam","John","adamjohn","");
+		result = LoginMethods.RegisterCheck("Adam","John","adamjohn","",driver);
+		ErrorDescription = "Password is required message not displayed";
+		assertEquals(true,result);		
+		
+	}
+	
+	//This function would test whether the registration was succesfull. It would then login with the registered user
+		
+	@Test
+	public void SuccessfullLogin() {
+		String firstname = "Adam", lastname = "John", username = "adamjohn", password = "thispassword";
+		String xpath_val = "//li[contains(text(),'"  + firstname + " " + lastname + "')]";
+		driver.get("https://react-redux-registration-login-example.stackblitz.io/login");
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		driver.findElement(By.xpath("//button['Login']/parent::div//a['Register']")).click();
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		
+		//Registration details are entered into respective fields
+		//It checks whether Registration successfull message is displayed or not
+		LoginMethods.EnterRegisterDetails(driver, firstname,lastname,username,password);
+		try {
+			driver.findElement(By.xpath("//div[contains(text(),'Registration successful')]"));
+			result = true;
+		}
+		catch(Exception e) {
+			result = false;
+			ErrorDescription = "Registration Successful message has not been displayed";
+		}
+		assertEquals(true, result);
+		
+		//With the newly created user, Login is performed
+		
+		driver.get("https://react-redux-registration-login-example.stackblitz.io/login");
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		
+		//Login details are entered
+		LoginMethods.EnterUsernameAndPassword(driver, "adamjohn", "thispassword");
+		
+		//Firstname is checked in the 'Hi ...' text
+		
+		String HeadingValue = driver.findElement(By.xpath("//h1")).getText();
+		result = HeadingValue.contains(firstname);
+		ErrorDescription = "FirstName has not been displayed";
+		assertEquals(true,result);
+		
+		//Full name is checked in the All Registered Users list
+		
+		try {
+			driver.findElement(By.xpath(xpath_val));
+			result = true;
+		}
+		catch(Exception e){
+			result = false;
+		}
+		ErrorDescription = "Fullname has not been displayed";
+		assertEquals(true,result);		
+		
+	}
+	
+	
+	//This is to log the results
+	@Rule
+    public TestWatcher watchman = new TestWatcher() {
+
+        @Override
+        protected void failed(Throwable e, Description description) {
+            if (description != null) {
+                builder.append(description);                ;
+            }
+            if (e != null) {
+                builder.append(description.getMethodName()+ " - ");
+                builder.append(ErrorDescription);
+            }
+            builder.append("- FAIL\n");
+        }
+
+        @Override
+        protected void succeeded(Description description) {
+            if (description != null) {
+                builder.append(description);
+            }
+            builder.append("- OK\n");
+        }
+    };
+    
+    @AfterClass
+    public static void afterClass() throws IOException {
+    	//Change the file location according to the local path required
+        PrintWriter logFile = new PrintWriter("C:\\Users\\logtest.txt", "UTF-8");
+        logFile.write(builder.toString());
+        logFile.close();
+    }
+    
+
+    
+}

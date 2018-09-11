@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="LoginTestCase" project="LoginTest" tests="2" started="2" failures="0" errors="0" ignored="0">
+  <testsuite name="LoginTestCase" time="112.891">
+    <testcase name="InvalidRegisterTest" classname="LoginTestCase" time="49.278"/>
+    <testcase name="InvalidLoginTest" classname="LoginTestCase" time="63.613"/>
+  </testsuite>
+</testrun>

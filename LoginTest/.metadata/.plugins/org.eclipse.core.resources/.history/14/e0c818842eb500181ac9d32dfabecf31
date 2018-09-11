@@ -1,0 +1,31 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class LoginMethods {
+	public static boolean ResultValue;
+	public static boolean UsernamePasswordCheck(String username, String password, WebDriver driver) {
+		try {	
+				if(username == "" && password != "") {
+					driver.findElement(By.xpath("//div[contains(text(),\'Username is required\')]"));
+					ResultValue = true;
+				}
+				else if(username != "" && password == "") {
+					driver.findElement(By.xpath("//div[contains(text(),\'Username is required\')]"));
+					ResultValue = true;
+				}
+				else if(username == "" && password == "") {
+					driver.findElement(By.xpath("//div[contains(text(),\'Password is required\')]"));
+					driver.findElement(By.xpath("//div[contains(text(),\'Username is required\')]"));
+					ResultValue = true;
+				}
+				else {
+					ResultValue = true;
+				}
+				
+			}
+		catch(Exception e) {
+			ResultValue = false;
+		}
+		return ResultValue;
+	};
+}
